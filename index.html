@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retro Snake Game</title>
+  <style>
+    body { background-color: #000; color: #0f0; font-family: monospace; text-align: center; }
+    canvas { background: #000; border: 1px solid #0f0; display: block; margin: 20px auto; }
+    h1 { color: #0f0; }
+  </style>
+</head>
+<body>
+  <h1>Retro Snake Game</h1>
+  <canvas id="game" width="400" height="400"></canvas>
+  <script>
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+    const gridSize = 20;
+    const tileCount = canvas.width / gridSize;
+
+    let snake = [{x: 10, y: 10}];
+    let food = {x: 5, y: 5};
+    let dx = 0;
+    let dy = 0;
+    let tail = 4;
+
+    function randomFood() {
+      food.x = Math.floor(Math.random() * tileCount);
+      food.y = Math.floor(Math.random() * tileCount);
+    }
+
+    function draw() {
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = '#f00';
+      ctx.fillRect(food.x * gridSize, food.y * gridSize, gridSize, gridSize);
+
+      ctx.fillStyle = '#0f0';
+      for (let i = 0; i < snake.length; i++) {
+        ctx.fillRect(snake[i].x * gridSize, snake[i].y * gridSize, gridSize-1, gridSize-1);
+        if (snake[i].x === snake[0].x && snake[i].y === snake[0].y && i !== 0) {
+          tail = 4; // reset tail
+          snake = [{x: 10, y: 10}];
+          dx = dy = 0;
+        }
+      }
+
+      snake[0].x += dx;
+      snake[0].y += dy;
+
+      if (snake[0].x < 0) snake[0].x = tileCount - 1;
+      if (snake[0].x >= tileCount) snake[0].x = 0;
+      if (snake[0].y < 0) snake[0].y = tileCount - 1;
+      if (snake[0].y >= tileCount) snake[0].y = 0;
+
+      if (snake[0].x === food.x && snake[0].y === food.y) {
+        tail++;
+        randomFood();
+      }
+
+      while (snake.length > tail) {
+        snake.pop();
+      }
+
+      snake.unshift({x: snake[0].x, y: snake[0].y});
+    }
+
+    document.addEventListener('keydown', e => {
+      switch (e.key) {
+        case 'ArrowLeft': if (dx !== 1) { dx = -1; dy = 0; } break;
+        case 'ArrowUp': if (dy !== 1) { dx = 0; dy = -1; } break;
+        case 'ArrowRight': if (dx !== -1) { dx = 1; dy = 0; } break;
+        case 'ArrowDown': if (dy !== -1) { dx = 0; dy = 1; } break;
+      }
+    });
+
+    randomFood();
+    setInterval(draw, 100);
+  </script>
+</body>
+</html>
